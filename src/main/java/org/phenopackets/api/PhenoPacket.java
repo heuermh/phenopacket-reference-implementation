@@ -8,6 +8,9 @@ import ioinformarics.oss.jackson.module.jsonld.annotation.JsonldProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avro.reflect.AvroIgnore;
+import org.apache.avro.reflect.Nullable;
+
 import org.phenopackets.api.model.association.DiseaseOccurrenceAssociation;
 import org.phenopackets.api.model.association.EnvironmentAssociation;
 import org.phenopackets.api.model.association.PhenotypeAssociation;
@@ -39,11 +42,13 @@ public class PhenoPacket {
 
     @JsonldId
     @JsonProperty("id")
-    private final String id;
+    @Nullable
+    private String id;
 
     @JsonldProperty("http://purl.org/dc/elements/1.1/title")
     @JsonProperty("title")
-    private final String title;
+    @Nullable
+    private String title;
     
     /**
      * The JSON-LD context for this document. This needs to be an unstructured
@@ -52,7 +57,8 @@ public class PhenoPacket {
      * in the document.
      */
     @JsonProperty("@context")
-    private final Object context;
+    @AvroIgnore // or @AvroEncode?
+    private Object context;
 
     /*
      * due to typing in yaml not using a 'type' fields in the same way as json
@@ -72,6 +78,21 @@ public class PhenoPacket {
     private final List<DiseaseOccurrenceAssociation> diseaseOccurrenceAssociations;
     private final List<VariantAssociation> variantAssociations;
     private final List<EnvironmentAssociation> environmentAssociations;
+
+    /**
+     * Public no-arg constructor, required by Avro serialization.  Use {@link #newBuilder} instead.
+     */
+    public PhenoPacket() {
+        persons = new ArrayList<Person>();
+        organisms = new ArrayList<Organism>();
+        variants = new ArrayList<Variant>();
+        diseases = new ArrayList<Disease>();
+
+        phenotypeAssociations = new ArrayList<PhenotypeAssociation>();
+        diseaseOccurrenceAssociations = new ArrayList<DiseaseOccurrenceAssociation>();
+        variantAssociations = new ArrayList<VariantAssociation>();
+        environmentAssociations = new ArrayList<EnvironmentAssociation>();
+    }
 
     private PhenoPacket(final Builder builder) {
         id = builder.id;
